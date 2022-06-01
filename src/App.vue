@@ -1,30 +1,42 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view/>
+  <router-view :user-info="userInfo" @check-login="checkLogin()" />
 </template>
 
+<script>
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import app from './connections/firebaseConnection';
+
+export default {
+  data() {
+    return {
+      userInfo: {},
+    };
+  },
+  methods: {
+    checkLogin() {
+      const auth = getAuth(app);
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          // User is signed in, see docs for a list of available properties
+          // https://firebase.google.com/docs/reference/js/firebase.User
+          // const uid = user.uid;
+          this.userInfo = user;
+          console.log('登入...');
+          this.$router.push(`/home/${this.userInfo.uid}`);
+          // ...
+        } else {
+          // User is signed out
+          // ...
+          console.log('未登入...');
+          this.$router.push('/');
+        }
+      });
+    },
+  },
+  mounted() {
+  },
+};
+</script>
+
 <style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
 </style>
